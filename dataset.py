@@ -42,7 +42,7 @@ class Covid(Dataset):
     def __getitem__(self, idx):
         impth = self.imgs[idx]
         self.img_path = os.path.join(self.class_path,list(self.class_cvt.keys())[impth[1]],'images')
-        
+                
         img =  cv2.imread(os.path.join(self.img_path,impth[0]))
         img = cv2.resize(img,self.cropsize, cv2.INTER_LINEAR)
         label = F.one_hot(torch.tensor(impth[1]), num_classes=3)
@@ -61,7 +61,8 @@ class Covid(Dataset):
             lung_mask = det_tf.augment_image( lung_mask)
             infect_mask = det_tf.augment_image(infect_mask)
 
-        img = self.to_tensor(img)        
+        if self.mode != 'test':
+            img = self.to_tensor(img)        
         lung_mask = np.where(lung_mask !=0,1.,0.)
         lung_mask = torch.from_numpy(lung_mask.astype(np.float32)).clone()
         lung_mask = F.one_hot(lung_mask.long(), num_classes=2)
