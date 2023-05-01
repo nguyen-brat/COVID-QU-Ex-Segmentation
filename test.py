@@ -12,7 +12,7 @@ onnx_path = 'weights/model_final.onnx'
 ie = Core()
 model_onnx = ie.read_model(model=onnx_path)
 compiled_model_onnx = ie.compile_model(model=model_onnx, device_name="CPU")
-test_data = Covid("datas\\", mode='test')
+test_data = Covid("dataset/Infection Segmentation Data/", mode='test')
 
 to_tensor = transforms.Compose([
     transforms.ToTensor(),
