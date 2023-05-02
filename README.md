@@ -6,8 +6,6 @@
 ## Installation
 ```
 pip install -r requirements.txt
-pip install openvino-dev[pytorch,onnx]
-pip install numpy --upgrade
 ```
 ## Data Preparation
 

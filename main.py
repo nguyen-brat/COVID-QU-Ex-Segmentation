@@ -1,12 +1,13 @@
-import streamlit as st
-import cv2
-import numpy as np
 import cv2
 import glob
 import torch
+import numpy as np
+from PIL import Image
+import streamlit as st
 from openvino.runtime import Core
-import torchvision.transforms as transforms
+from utils import inference
 from post_processing import post_processing
+
 
 img_show = st.container()
 input_image = st.container()
@@ -22,6 +23,17 @@ non_covid_lung_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Tes
 normal_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\images\*')
 normal_infection_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\infection masks\*')
 normal_lung_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\lung masks\*')
+
+# Load model
+ie = Core()
+onnx_path = 'weights/model_final.onnx'
+model_onnx = ie.read_model(model=onnx_path)
+compiled_model_onnx = ie.compile_model(model=model_onnx, device_name="CPU")
+
+# Warm up the model
+dummy = torch.rand(1, 3, 256, 256)
+compiled_model_onnx(dummy.numpy())
+###################
 
 with img_show:
     origin_covid19_imgs = []
@@ -57,68 +69,85 @@ with img_show:
     for normal_lung_mask_img_path in normal_lung_mask_img_paths:
         normal_lung_mask_imgs.append(cv2.imread(normal_lung_mask_img_path))
     
-    st.title("Some sample Image")
-    images = st.tabs(["Sample image 1", "Sample image 2", "Sample image 3", "sample image 4"])
+    st.title("Some sample images")
+    images = st.tabs(["Sample images 1", "Sample images 2", "Sample images 3", "Sample images 4"])
     for i, image in enumerate(images):
         with image:
-            covid, non_covid, normal = st.tabs(["Covid image", "Non vovid image", "Normal image"])
+            covid, non_covid, normal = st.tabs(["Covid image", "Non-Covid image", "Normal image"])
             with covid:
+                output_seg_lungs, output_seg_infected, illustrate_im, inference_time = inference(origin_covid19_imgs[i], compiled_model_onnx)
+                st.text(f"Inference time: {inference_time} s")
                 original, infection, lung = st.columns(3)
                 with original:
                     st.text('Original Lung image')
                     st.image(origin_covid19_imgs[i])
+                    st.text('Output Lung segmentation')
+                    st.image(output_seg_lungs)
                 with infection:
                     st.text('Infection mask')
                     st.image(infection_covid19_masks[i])
+                    st.text('Output Infected segmentation')
+                    st.image(output_seg_infected)
                 with lung:
                     st.text('Lung image')
                     st.image(lung_covid19_masks[i])
+                    st.text('Final output')
+                    st.image(illustrate_im)
             with non_covid:
+                output_seg_lungs, output_seg_infected, illustrate_im, inference_time = inference(non_covid_imgs[i], compiled_model_onnx)
+                st.text(f"Inference time: {inference_time} s")
                 original, infection, lung = st.columns(3)
                 with original:
                     st.text('Original Lung image')
                     st.image(non_covid_imgs[i])
+                    st.text('Output Lung segmentation')
+                    st.image(output_seg_lungs)
                 with infection:
                     st.text('Infection mask')
                     st.image(non_covid_infection_masks[i])
+                    st.text('Output Infected segmentation')
+                    st.image(output_seg_infected)
                 with lung:
                     st.text('Lung image')
                     st.image(non_covid_lung_masks[i])
+                    st.text('Final output')
+                    st.image(illustrate_im)
             with normal:
+                output_seg_lungs, output_seg_infected, illustrate_im, inference_time = inference(normal_imgs[i], compiled_model_onnx)
+                st.text(f"Inference time: {inference_time} s")
                 original, infection, lung = st.columns(3)
                 with original:
                     st.text('Original Lung image')
                     st.image(normal_imgs[i])
+                    st.text('Output Lung segmentation')
+                    st.image(output_seg_lungs)
                 with infection:
                     st.text('Infection mask')
                     st.image(normal_infection_mask_imgs[i])
+                    st.text('Output Infected segmentation')
+                    st.image(output_seg_infected)
                 with lung:
                     st.text('Lung image')
                     st.image(normal_lung_mask_imgs[i])
-                    
+                    st.text('Final output')
+                    st.image(illustrate_im)
                     
 with input_image:
     st.title('Input image')
-    im = st.file_uploader('chosse a image', type = ['pnj', 'jpg','png'])
-    if im is not None:
-        im = cv2.imread(im)
-        img = np.array(im)
-        if len(img.shape) == 2:
-            img = np.repeat(img[:, :, None], 3, axis=-1)
-        img = cv2.resize(img, (256, 256), cv2.INTER_LINEAR)
-        st.image(im)        
-        img = to_tensor(img).unsqueeze(0).to('cpu').numpy()
-        with torch.no_grad():
-            output_class, output_seg_lungs, output_seg_infected = compiled_model_onnx(img).values()
-        output_class = output_class.argmax(1)
-        output_seg_lungs = (np.transpose(output_seg_lungs.argmax(1), (1, 2, 0))*255).astype('uint8')
-        output_seg_infected = (np.transpose(output_seg_infected.argmax(1), (1, 2, 0))*255).astype('uint8')
-        _, output_seg_lungs, output_seg_infected, infected_ratio, illustrate_im = post_processing(output_class, output_seg_lungs, output_seg_infected)
-
+    img = st.file_uploader('Upload an image', type = ['pnj', 'jpg','png'])
+    if img is not None:
+        img = Image.open(img)
+        st.image(img)
+        img = np.array(img)
+        output_seg_lungs, output_seg_infected, illustrate_im, inference_time = inference(img, compiled_model_onnx)
+        st.text(f"Inference time: {inference_time} s")
         img1, img2, img3 = st.columns(3)
         with img1:
+            st.text('Output Lung segmentation')
             st.image(output_seg_lungs)
         with img2:
+            st.text('Output Infected segmentation')
             st.image(output_seg_infected)
         with img3:
+            st.text('Final output')
             st.image(illustrate_im)
