@@ -12,17 +12,17 @@ from post_processing import post_processing
 img_show = st.container()
 input_image = st.container()
 
-origin_covid19_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\images\*')
-infection_covid19_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\infection masks\*')
-lung_covid19_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\lung masks\*')
+origin_covid19_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/COVID-19/images/*')
+infection_covid19_mask_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/COVID-19/infection masks/*')
+lung_covid19_mask_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/COVID-19/lung masks/*')
 
-non_covid_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\images\*')
-non_covid_infection_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\infection masks\*')
-non_covid_lung_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\lung masks\*')
+non_covid_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Non-COVID/images/*')
+non_covid_infection_mask_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Non-COVID/infection masks/*')
+non_covid_lung_mask_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Non-COVID/lung masks/*')
 
-normal_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\images\*')
-normal_infection_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\infection masks\*')
-normal_lung_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\lung masks\*')
+normal_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Normal/images/*')
+normal_infection_mask_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Normal/infection masks/*')
+normal_lung_mask_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/Test/Normal/lung masks/*')
 
 # Load model
 ie = Core()
