@@ -1,6 +1,6 @@
 streamlit
 openvino==2022.3.0
-opencv
+opencv-python
 imgaug
 matplotlib
 numpy
