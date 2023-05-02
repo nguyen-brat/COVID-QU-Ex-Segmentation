@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from PIL import Image
+import cv2
 import glob
 import torch
 import onnx
@@ -8,85 +8,99 @@ import torchvision.transforms as transforms
 from post_processing import post_processing
 
 img_show = st.container()
-image = st.container()
+input_image = st.container()
 
-origin_covid19_img_paths = glob.glob(r'datas\\Test\\COVID-19\\images\\*')
-infection_covid19_mask_paths = glob.glob(r'datas\\Test\\COVID-19\\infection masks\\*')
-lung_covid19_mask_paths = glob.glob(r'datas\\Test\\COVID-19\\lung masks\\*')
+origin_covid19_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\images\*')
+infection_covid19_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\infection masks\*')
+lung_covid19_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\COVID-19\lung masks\*')
 
-non_covid_img_paths = glob.glob(r'datas\Test\Non-COVID\images\*')
-non_covid_infection_mask_paths = glob.glob(r'datas\Test\Non-COVID\infection masks\*')
-non_covid_lung_mask_paths = glob.glob(r'datas\Test\Non-COVID\lung masks\*')
+non_covid_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\images\*')
+non_covid_infection_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\infection masks\*')
+non_covid_lung_mask_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Non-COVID\lung masks\*')
 
-normal_img_paths = glob.glob(r'datas\Test\Normal\images\*')
-normal_infection_mask_img_paths = glob.glob(r'datas\Test\Normal\infection masks\*')
-normal_lung_mask_img_paths = glob.glob(r'datas\Test\Normal\lung masks\*')
+normal_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\images\*')
+normal_infection_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\infection masks\*')
+normal_lung_mask_img_paths = glob.glob(r'datasets\Infection Segmentation Data\Test\Normal\lung masks\*')
 
 with img_show:
-    origin_covid19_img = Image.open(origin_covid19_img_paths[0])
-    origin_covid19_img = np.array(origin_covid19_img)
-    infection_covid19_mask = Image.open(infection_covid19_mask_paths[0])
-    infection_covid19_mask = np.array(infection_covid19_mask)
-    lung_covid19_mask = Image.open(lung_covid19_mask_paths[0])
-    lung_covid19_mask = np.array(lung_covid19_mask)
+    origin_covid19_imgs = []
+    infection_covid19_masks = []
+    lung_covid19_masks = []
     
-    non_covid_img = Image.open(non_covid_img_paths[0])
-    non_covid_img = np.array(non_covid_img)
-    non_covid_infection_mask = Image.open(non_covid_infection_mask_paths[0])
-    non_covid_infection_mask = np.array(non_covid_infection_mask)
-    non_covid_lung_mask = Image.open(non_covid_lung_mask_paths[0])
-    non_covid_lung_mask = np.array(non_covid_lung_mask)
+    non_covid_imgs = []
+    non_covid_infection_masks = []
+    non_covid_lung_masks = []
     
-    normal_img = Image.open(normal_img_paths[0])
-    normal_img = np.array(normal_img)
-    normal_infection_mask_img = Image.open(normal_infection_mask_img_paths[0])
-    normal_infection_mask_img = np.array(normal_infection_mask_img)
-    normal_lung_mask_img = Image.open(normal_lung_mask_img_paths[0])
-    normal_lung_mask_img = np.array(normal_lung_mask_img)
+    normal_imgs = []
+    normal_infection_mask_imgs = []
+    normal_lung_mask_imgs = []
+    
+    for origin_covid19_img_path in origin_covid19_img_paths:
+        origin_covid19_imgs.append(cv2.imread(origin_covid19_img_path))
+    for infection_covid19_mask_path in infection_covid19_mask_paths:
+        infection_covid19_masks.append(cv2.imread(infection_covid19_mask_path))
+    for lung_covid19_mask_path in lung_covid19_mask_paths:
+        lung_covid19_masks.append(cv2.imread(lung_covid19_mask_path))
+    
+    for non_covid_img_path in non_covid_img_paths:
+        non_covid_imgs.append(cv2.imread(non_covid_img_path))
+    for non_covid_infection_mask_path in non_covid_infection_mask_paths:
+        non_covid_infection_masks.append(cv2.imread(non_covid_infection_mask_path))
+    for non_covid_lung_mask_path in non_covid_lung_mask_paths:
+        non_covid_lung_masks.append(cv2.imread(non_covid_lung_mask_path))
+        
+    for normal_img_path in normal_img_paths:
+        normal_imgs.append(cv2.imread(normal_img_path))
+    for normal_infection_mask_img_path in normal_infection_mask_img_paths:
+        normal_infection_mask_imgs.append(cv2.imread(normal_infection_mask_img_path))
+    for normal_lung_mask_img_path in normal_lung_mask_img_paths:
+        normal_lung_mask_imgs.append(cv2.imread(normal_lung_mask_img_path))
     
     st.title("Some sample Image")
-    covid, not_covid, normal = st.tabs(["Covid image sample", "None covid image sample", "normal image sample"])
-    with covid:
-        img1, img2, img3 = st.columns(3)
-        with img1:
-            st.text('Original covid-19 image')
-            st.image(origin_covid19_img)
-        with img2:
-            st.text('Infection covid image mask')
-            st.image(infection_covid19_mask)
-        with img3:
-            st.text('Lung image mask')
-            st.image(lung_covid19_mask)
-            
-    with not_covid:
-        img1, img2, img3 = st.columns(3)
-        with img1:
-            st.text('Original not covid image')
-            st.image(non_covid_img)
-        with img2:
-            st.text('Infection covid image mask')
-            st.image(non_covid_infection_mask)
-        with img3:
-            st.text('Lung image mask')
-            st.image(non_covid_lung_mask)
-            
-    with normal:
-        img1, img2, img3 = st.columns(3)
-        with img1:
-            st.text('Original covid-19 image')
-            st.image(normal_img)
-        with img2:
-            st.text('Infection covid image mask')
-            st.image(normal_infection_mask_img)
-        with img3:
-            st.text('Lung image mask')
-            st.image(normal_lung_mask_img)
-            
-with image:
+    images = st.tabs(["Sample image 1", "Sample image 2", "Sample image 3", "sample image 4"])
+    for i, image in enumerate(images):
+        with image:
+            covid, non_covid, normal = st.tabs(["Covid image", "Non vovid image", "Normal image"])
+            with covid:
+                original, infection, lung = st.columns(3)
+                with original:
+                    st.text('Original Lung image')
+                    st.image(origin_covid19_imgs[i])
+                with infection:
+                    st.text('Infection mask')
+                    st.image(infection_covid19_masks[i])
+                with lung:
+                    st.text('Lung image')
+                    st.image(lung_covid19_masks[i])
+            with non_covid:
+                original, infection, lung = st.columns(3)
+                with original:
+                    st.text('Original Lung image')
+                    st.image(non_covid_imgs[i])
+                with infection:
+                    st.text('Infection mask')
+                    st.image(non_covid_infection_masks[i])
+                with lung:
+                    st.text('Lung image')
+                    st.image(non_covid_lung_masks[i])
+            with normal:
+                original, infection, lung = st.columns(3)
+                with original:
+                    st.text('Original Lung image')
+                    st.image(normal_imgs[i])
+                with infection:
+                    st.text('Infection mask')
+                    st.image(normal_infection_mask_imgs[i])
+                with lung:
+                    st.text('Lung image')
+                    st.image(normal_lung_mask_imgs[i])
+                    
+                    
+with input_image:
     st.title('Input image')
     im = st.file_uploader('chosse a image', type = ['pnj', 'jpg', 'txt','png'])
     if im is not None:
-        im = Image.open(im)
+        im = cv2.imread(im)
         img = np.array(im)
         img = img[np.newaxis, ...]
         st.image(im)
