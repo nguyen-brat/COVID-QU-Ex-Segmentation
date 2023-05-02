@@ -1,6 +1,6 @@
 streamlit
 openvino
-opencv
+opencv-python-headless
 imgaug
 matplotlib
 numpy
