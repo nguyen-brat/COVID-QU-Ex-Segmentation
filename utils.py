@@ -15,6 +15,12 @@ def inference(img, model):
     # Receive numpy array image
     if len(img.shape) == 2:
         img = np.repeat(img[:, :, None], 3, axis=-1)
+    elif img.shape[2] == 2:
+        new_img = np.ones((img.shape[0], img.shape[1], 3))
+        new_img[:, :, 0:2] = img
+        new_img[:, :, 2] = img[:, :, 1]
+        img = new_img
+        
     img = cv2.resize(img, (256, 256), cv2.INTER_LINEAR)
     img = to_tensor(img).unsqueeze(0).to('cpu').numpy()
     start = time.perf_counter()

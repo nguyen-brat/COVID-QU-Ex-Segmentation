@@ -3,6 +3,14 @@
 ## Proposed Architecture
 <img src="./figs/model_architecture.png" alt="image" style="zoom:50%;" />
 
+## Experimental Results
+|Task|Backbone|Accuracy|IoU|DSC|
+|:------:|:------:|:------:|:------:|:------:|
+|Lung Segmentation|MobileNet v3|98.09|92.05|95.77|
+|Infection Segmentation|MobileNet v3|97.77|80.17|85.65|
+
+Fully code for training and reimplementing experimental results: [Kaggle Notebook](https://www.kaggle.com/code/khitrnhxun/final-model-quantization)
+
 ## Installation
 ```
 pip install -r requirements.txt
