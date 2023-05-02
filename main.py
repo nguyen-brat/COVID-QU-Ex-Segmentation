@@ -1,9 +1,10 @@
 import streamlit as st
+import cv2
 import numpy as np
 import cv2
 import glob
 import torch
-import onnx
+from openvino.runtime import Core
 import torchvision.transforms as transforms
 from post_processing import post_processing
 
@@ -98,20 +99,17 @@ with img_show:
                     
 with input_image:
     st.title('Input image')
-    im = st.file_uploader('chosse a image', type = ['pnj', 'jpg', 'txt','png'])
+    im = st.file_uploader('chosse a image', type = ['pnj', 'jpg','png'])
     if im is not None:
         im = cv2.imread(im)
         img = np.array(im)
-        img = img[np.newaxis, ...]
-        st.image(im)
-        model = onnx.load(r'weights\model_final.onnx')
-        to_tensor = transforms.Compose([
-                        transforms.ToTensor(),
-                        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-                    ])
+        if len(img.shape) == 2:
+            img = np.repeat(img[:, :, None], 3, axis=-1)
+        img = cv2.resize(img, (256, 256), cv2.INTER_LINEAR)
+        st.image(im)        
         img = to_tensor(img).unsqueeze(0).to('cpu').numpy()
         with torch.no_grad():
-            output_class, output_seg_lungs, output_seg_infected = model(img).values()
+            output_class, output_seg_lungs, output_seg_infected = compiled_model_onnx(img).values()
         output_class = output_class.argmax(1)
         output_seg_lungs = (np.transpose(output_seg_lungs.argmax(1), (1, 2, 0))*255).astype('uint8')
         output_seg_infected = (np.transpose(output_seg_infected.argmax(1), (1, 2, 0))*255).astype('uint8')
