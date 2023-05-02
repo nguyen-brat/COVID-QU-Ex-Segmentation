@@ -9,6 +9,8 @@
 |Lung Segmentation|MobileNet v3|98.09|92.05|95.77|
 |Infection Segmentation|MobileNet v3|97.77|80.17|85.65|
 
+CPU running inference: Intel(R) Xeon(R) CPU @ 2.20GHz
+Inference time on average per image: 0.02 s
 Fully code for training and reimplementing experimental results: [Kaggle Notebook](https://www.kaggle.com/code/khitrnhxun/final-model-quantization)
 
 ## Installation
