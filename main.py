@@ -26,7 +26,7 @@ normal_lung_mask_img_paths = glob.glob(r'./datasets/Infection Segmentation Data/
 
 # Load model
 ie = Core()
-onnx_path = 'weights/model_final.onnx'
+onnx_path = './weights/model_final.onnx'
 model_onnx = ie.read_model(model=onnx_path)
 compiled_model_onnx = ie.compile_model(model=model_onnx, device_name="CPU")
 
