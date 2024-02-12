@@ -1,7 +1,12 @@
 # COVID-QU-Ex Segmentation
+## Introduction
+- We propose an end-to-end realtime system to detect, localize, and quantify COVID-19 infection from X-ray images.
 
 ## Proposed Architecture
 <img src="./figs/model_architecture.png" alt="image" style="zoom:50%;" />
+
+## Presentation Slide
+- [AIO 2023 End Course Project Slide](https://docs.google.com/presentation/d/1m-uDndosn4_zgllyYscRTrMTSlkM1-KHUoAQVeejMCA/edit?usp=sharing)
 
 ## Experimental Results
 |Task|Backbone|Accuracy|IoU|DSC|
